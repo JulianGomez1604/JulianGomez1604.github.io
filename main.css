@@ -75,3 +75,42 @@ body {
     border-right: thick solid white;
     border-left: none
 }
+
+.contact {
+    display: flex;
+    flex-flow: row wrap;
+    padding: 1em;
+    margin: 2em;
+}
+
+.info {
+    flex: 1 1 50%;
+}
+
+.info p {
+    font-size: 2em;
+    font-weight: bold;
+}
+
+.info ul {
+    padding: 0;
+    list-style: none;
+}
+
+.info li {
+    margin: 1em;
+}
+
+.socials {
+    flex: 1 1 50%;
+}
+
+.socials p {
+    font-size: 2em;
+    font-weight: bold;
+}
+
+.socials img{
+    margin: 1em;
+    width: 5em;
+}
