@@ -1,0 +1,36 @@
+* {
+    margin: 0;
+    font-family: 'Exo 2', sans-serif;
+    color: white;
+}
+
+body {
+    background-color: black;
+}
+
+.navigation {
+    left: auto;
+    right: 1%;
+    z-index: 100;
+}
+
+.navigation ul {
+    display: flex;
+    list-style: none;
+    gap: 2em;
+    color: white;
+    padding: 1em;
+}
+
+.projectsContainer {
+    display: flex;
+}
+
+.projectCard {
+    width: 300px;
+    height: 300px;
+    border: 2px solid white;
+    margin: 2em;
+    text-align: center;
+    padding: 1em;
+}

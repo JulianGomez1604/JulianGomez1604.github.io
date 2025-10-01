@@ -1,0 +1,44 @@
+* {
+    margin: 0;
+    font-family: 'Exo 2', sans-serif;
+    color: white;
+}
+
+body {
+    background-color: black;
+}
+
+.soundsContainer {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1em;
+    padding: 2em;
+}
+
+button {
+    background-color: blue;
+    width: 150px;
+}
+
+.sound {
+    background-color: #1e1e1e;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    padding: 1em;
+    text-align: center;
+    width: 150px;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.remove-single {
+    background-color: red;
+    margin-top: 0.5em;
+    width: 100%;
+} 
+
+.sound:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+}
