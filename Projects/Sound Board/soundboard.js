@@ -59,12 +59,13 @@ document.addEventListener("DOMContentLoaded", () => {
         const audio = document.createElement('audio');
         audio.classList.add('audio');
         audio.src = objectUrl;
-        audio.controls = true;
+        audio.style.display = "none"; // hide the default white controls
 
         const playButton = document.createElement('button');
         playButton.classList.add('play');
         playButton.textContent = 'Play';
         playButton.addEventListener('click', () => {
+            audio.currentTime = 0; // restart from beginning
             audio.play();
         });
 
