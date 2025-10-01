@@ -1,9 +1,27 @@
 document.addEventListener("DOMContentLoaded", () => {
     const addButton = document.querySelector('.add');
-    const removeButton = document.querySelector('.remove');
     const soundsContainer = document.querySelector('.soundsContainer');
+    let db;
+    let soundCounter = 1;
 
-    let soundCounter = document.querySelectorAll('.sound').length + 1;
+    // Open IndexedDB
+    const request = indexedDB.open("SoundBoardDB", 1);
+
+    request.onupgradeneeded = (event) => {
+        db = event.target.result;
+        if (!db.objectStoreNames.contains("sounds")) {
+            db.createObjectStore("sounds", { keyPath: "id", autoIncrement: true });
+        }
+    };
+
+    request.onsuccess = (event) => {
+        db = event.target.result;
+        loadSounds();
+    };
+
+    request.onerror = (event) => {
+        console.error("IndexedDB error:", event.target.errorCode);
+    };
 
     // Add Sound
     addButton.addEventListener('click', () => {
@@ -17,7 +35,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 const file = fileInput.files[0];
                 const title = prompt("Enter a title for this sound:", `Sound ${soundCounter}`);
                 if (title !== null && title.trim() !== "") {
-                    addSoundBlock(file, title.trim());
+                    saveSound({ title: title.trim(), file: file });
                 }
             }
         });
@@ -27,20 +45,8 @@ document.addEventListener("DOMContentLoaded", () => {
         document.body.removeChild(fileInput);
     });
 
-    // Remove last sound (still here if you want to keep it)
-    removeButton.addEventListener('click', () => {
-        const sounds = soundsContainer.querySelectorAll('.sound');
-        if (sounds.length > 0) {
-            const lastSound = sounds[sounds.length - 1];
-            soundsContainer.removeChild(lastSound);
-            soundCounter--;
-        } else {
-            alert("No sounds to remove.");
-        }
-    });
-
-    // Add a sound block with title and file
-    function addSoundBlock(file, titleText) {
+    // Add a sound block
+    function addSoundBlock(id, file, titleText) {
         const objectUrl = URL.createObjectURL(file);
 
         const soundDiv = document.createElement('div');
@@ -53,6 +59,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const audio = document.createElement('audio');
         audio.classList.add('audio');
         audio.src = objectUrl;
+        audio.controls = true;
 
         const playButton = document.createElement('button');
         playButton.classList.add('play');
@@ -66,7 +73,7 @@ document.addEventListener("DOMContentLoaded", () => {
         removeButton.textContent = 'Remove';
         removeButton.addEventListener('click', () => {
             soundsContainer.removeChild(soundDiv);
-            soundCounter--;
+            removeSound(id);
         });
 
         soundDiv.appendChild(title);
@@ -78,22 +85,38 @@ document.addEventListener("DOMContentLoaded", () => {
         soundCounter++;
     }
 
-    // Optional: drag-and-drop support
-    window.addEventListener('dragover', (e) => e.preventDefault());
+    // Save sound to IndexedDB
+    function saveSound(sound) {
+        const transaction = db.transaction(["sounds"], "readwrite");
+        const store = transaction.objectStore("sounds");
+        store.add(sound);
 
-    window.addEventListener('drop', (e) => {
-        e.preventDefault();
+        transaction.oncomplete = () => {
+            loadSounds(); // refresh view
+        };
+    }
 
-        if (e.dataTransfer.files.length > 0) {
-            const file = e.dataTransfer.files[0];
-            if (file.type.startsWith('audio/')) {
-                const title = prompt("Enter a title for this sound:", `Sound ${soundCounter}`);
-                if (title !== null && title.trim() !== "") {
-                    addSoundBlock(file, title.trim());
-                }
-            } else {
-                alert("Only audio files are allowed.");
+    // Remove sound from IndexedDB
+    function removeSound(id) {
+        const transaction = db.transaction(["sounds"], "readwrite");
+        const store = transaction.objectStore("sounds");
+        store.delete(id);
+    }
+
+    // Load sounds from IndexedDB
+    function loadSounds() {
+        soundsContainer.innerHTML = ""; // clear current
+        const transaction = db.transaction(["sounds"], "readonly");
+        const store = transaction.objectStore("sounds");
+
+        const request = store.openCursor();
+        request.onsuccess = (event) => {
+            const cursor = event.target.result;
+            if (cursor) {
+                const { id, title, file } = cursor.value;
+                addSoundBlock(id, file, title);
+                cursor.continue();
             }
-        }
-    });
+        };
+    }
 });
